@@ -4,7 +4,7 @@ jdk:
 
 install: true
 
-script: chmod +x ./gradlew; ./gradlew test publishArtifacts --stacktrace
+script: ./gradlew test publishArtifacts --stacktrace
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
