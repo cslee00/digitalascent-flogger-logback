@@ -1,0 +1,143 @@
+/*
+ * Copyright 2017-2017 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+plugins {
+    id "java-library"
+    id "groovy"
+    id "net.ltgt.errorprone" version "0.0.10"
+
+    id 'nebula.project' version '3.4.0'
+
+    id 'nebula.nebula-bintray' version '3.5.2'
+    id 'nebula.maven-publish' version '5.1.1'
+    id 'nebula.maven-manifest' version '5.1.1'
+    id 'nebula.maven-scm' version '5.1.1'
+    id 'nebula.javadoc-jar' version '5.1.1'
+    id 'nebula.source-jar' version '5.1.1'
+    id 'nebula.info' version '3.6.0'
+    id 'nebula.info-owners' version '3.6.0'
+
+    id 'pl.allegro.tech.build.axion-release' version '1.7.1'
+}
+
+scmVersion {
+    localOnly = true
+    tag {
+        prefix = 'release'
+        versionSeparator = '/'
+    }
+}
+
+group = "com.digitalascent"
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+version = scmVersion.version
+
+repositories {
+    jcenter()
+}
+
+
+tasks.withType(JavaCompile) {
+
+    configure(options) {
+        // http://docs.oracle.com/javase/8/docs/technotes/tools/windows/javac.html#BHCJCABJ
+        ext.lintOpts = ["serial", "varargs", "cast", "classfile", "dep-ann", "divzero", "empty", "finally",
+                        "overrides", "path", "processing", "static", "try", "fallthrough", "rawtypes", "deprecation",
+                        "unchecked", "-options"].collect { "-Xlint:${it}" }
+
+        // configure Google Error Prone: https://github.com/tbroyer/gradle-errorprone-plugin, http://errorprone.info/
+        ext.errorProneOptsError = ["AssertFalse", "BigDecimalLiteralDouble", "ConstructorInvokesOverridable",  "EmptyTopLevelDeclaration", "MissingDefault",
+                                   "NonCanonicalStaticMemberImport", "PrimitiveArrayPassedToVarargsMethod", "RedundantThrows", "StaticQualifiedUsingExpression", "StringEquality",
+                                   "UnnecessaryDefaultInEnumSwitch", "WildcardImport", "MultipleTopLevelClasses", "MultiVariableDeclaration", "MixedArrayDimensions", "MethodCanBeStatic",
+                                   "PrivateConstructorForUtilityClass", "PackageLocation", "ConstantField"].collect {
+            "-Xep:${it}:ERROR"
+        }
+
+        // TODO - re-enable once https://github.com/google/error-prone/issues/472 is fixed
+        // "ReturnMissingNullable", "FieldMissingNullable", "ParameterNotNullable",
+
+        // "ConstructorLeaksThis",
+
+        ext.errorProneOptsWarning = [].collect { "-Xep:${it}:WARNING" }
+        ext.errorProneOptsOff = [].collect { "-Xep:${it}:OFF" }
+
+        // http://docs.oracle.com/javase/8/docs/technotes/tools/windows/javac.html
+        // -Werror - terminates compilation when warnings occur
+        ext.generalArgs = []
+//            ext.generalArgs = ["-Werror"]
+
+        compilerArgs += errorProneOptsError
+        compilerArgs += errorProneOptsWarning
+        compilerArgs += errorProneOptsOff
+        compilerArgs += lintOpts
+        compilerArgs += generalArgs
+        encoding = 'UTF-8'
+    }
+}
+ext.versions = [
+        "flogger" : "0.1"
+]
+
+
+dependencies {
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+
+    implementation group: 'com.google.flogger', name: 'flogger', version: versions.flogger
+    implementation group: 'com.google.flogger', name: 'flogger-system-backend', version: versions.flogger
+
+    testRuntimeOnly group: 'org.slf4j', name: 'slf4j-simple', version: "1.7.25"
+    testImplementation "org.codehaus.groovy:groovy-all:2.4.12"
+    testImplementation "org.spockframework:spock-core:1.1-groovy-2.4"
+    testRuntimeOnly('com.athaydes:spock-reports:1.3.1') {
+        transitive = false // this avoids affecting version of Groovy/Spock
+    }
+}
+
+javadoc {
+    description = "Generates project-level javadoc for use in -javadoc jar"
+    configure(options) {
+        memberLevel = JavadocMemberLevel.PROTECTED
+        author = true
+        header = project.name
+
+        ext.javadocLinks = [
+                "http://docs.oracle.com/javase/8/docs/api/",
+                "http://docs.oracle.com/javaee/7/api/"
+        ] as String[]
+
+        links(javadocLinks)
+        addStringOption('Xdoclint:none', '-quiet')
+    }
+
+    // Suppress warnings due to cross-module @see and @link references.
+    // Note that global 'api' task does display all warnings.
+    logging.captureStandardError LogLevel.INFO
+    logging.captureStandardOutput LogLevel.INFO  // suppress "## warnings" message
+}
+
+contacts {
+    'chris@digitalascent.com' {
+        moniker 'Chris Lee'
+        github 'cslee00'
+        role 'owner'
+        role 'notify'
+    }
+}
+
+wrapper {
+    gradleVersion = "4.6"
+}
