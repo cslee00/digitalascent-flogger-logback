@@ -142,6 +142,24 @@ wrapper {
     gradleVersion = "4.6"
 }
 
+bintray {
+    dryRun = false
+    pkg {
+        repo = 'com.digitalascent'
+        name = project.name
+        userOrg = ''
+        websiteUrl = 'https://github.com/cslee00/${project.name}'
+        issueTrackerUrl = 'https://github.com/cslee00/${project.name}/issues'
+        vcsUrl = 'https://github.com/cslee00/${project.name}.git'
+        labels = []
+        version {
+            name = project.version
+            vcsTag = project.version
+            attributes = [:]
+        }
+    }
+}
+
 task "publishArtifacts"  {
     dependsOn = [release,bintrayUpload,artifactoryPublish]
     group = "publishing"
