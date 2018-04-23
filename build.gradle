@@ -17,9 +17,9 @@
 plugins {
     id "java-library"
     id "groovy"
-    id "net.ltgt.errorprone" version "0.0.10"
+    id "net.ltgt.errorprone" version "0.0.13"
 
-    id 'nebula.project' version '3.4.0'
+    id 'nebula.project' version '3.4.1'
 
     id 'nebula.nebula-bintray' version '3.5.2'
     id 'nebula.maven-publish' version '5.1.1'
