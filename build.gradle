@@ -20,15 +20,8 @@ plugins {
     id "net.ltgt.errorprone" version "0.0.13"
 
     id 'nebula.project' version '3.4.1'
-
     id 'nebula.nebula-bintray' version '3.5.2'
-    id 'nebula.maven-publish' version '5.1.1'
-    id 'nebula.maven-manifest' version '5.1.1'
-    id 'nebula.maven-scm' version '5.1.1'
-    id 'nebula.javadoc-jar' version '5.1.1'
-    id 'nebula.source-jar' version '5.1.1'
-    id 'nebula.info' version '3.6.0'
-    id 'nebula.info-owners' version '3.6.0'
+    id "nebula.resolution-rules" version "5.2.0"
 
     id 'pl.allegro.tech.build.axion-release' version '1.7.1'
 }
