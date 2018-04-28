@@ -17,8 +17,8 @@
 plugins {
     id "java-library"
     id "groovy"
-    id "net.ltgt.errorprone" version "0.0.13"
 
+    id "com.digitalascent.gradle.errorprone" version "0.2"
     id 'nebula.project' version '3.4.1'
     id 'nebula.nebula-bintray' version '3.5.2'
     id "nebula.resolution-rules" version "5.2.0"
@@ -43,6 +43,9 @@ repositories {
     jcenter()
 }
 
+errorprone {
+
+}
 
 tasks.withType(JavaCompile) {
 
@@ -52,30 +55,12 @@ tasks.withType(JavaCompile) {
                         "overrides", "path", "processing", "static", "try", "fallthrough", "rawtypes", "deprecation",
                         "unchecked", "-options"].collect { "-Xlint:${it}" }
 
-        // configure Google Error Prone: https://github.com/tbroyer/gradle-errorprone-plugin, http://errorprone.info/
-        ext.errorProneOptsError = ["AssertFalse", "BigDecimalLiteralDouble", "ConstructorInvokesOverridable",  "EmptyTopLevelDeclaration", "MissingDefault",
-                                   "NonCanonicalStaticMemberImport", "PrimitiveArrayPassedToVarargsMethod", "RedundantThrows", "StaticQualifiedUsingExpression", "StringEquality",
-                                   "UnnecessaryDefaultInEnumSwitch", "WildcardImport", "MultipleTopLevelClasses", "MultiVariableDeclaration", "MixedArrayDimensions", "MethodCanBeStatic",
-                                   "PrivateConstructorForUtilityClass", "PackageLocation", "ConstantField"].collect {
-            "-Xep:${it}:ERROR"
-        }
-
-        // TODO - re-enable once https://github.com/google/error-prone/issues/472 is fixed
-        // "ReturnMissingNullable", "FieldMissingNullable", "ParameterNotNullable",
-
-        // "ConstructorLeaksThis",
-
-        ext.errorProneOptsWarning = [].collect { "-Xep:${it}:WARNING" }
-        ext.errorProneOptsOff = [].collect { "-Xep:${it}:OFF" }
 
         // http://docs.oracle.com/javase/8/docs/technotes/tools/windows/javac.html
         // -Werror - terminates compilation when warnings occur
         ext.generalArgs = []
 //            ext.generalArgs = ["-Werror"]
 
-        compilerArgs += errorProneOptsError
-        compilerArgs += errorProneOptsWarning
-        compilerArgs += errorProneOptsOff
         compilerArgs += lintOpts
         compilerArgs += generalArgs
         encoding = 'UTF-8'
@@ -108,8 +93,7 @@ javadoc {
         header = project.name
 
         ext.javadocLinks = [
-                "http://docs.oracle.com/javase/8/docs/api/",
-                "http://docs.oracle.com/javaee/7/api/"
+                "http://docs.oracle.com/javase/8/docs/api/"
         ] as String[]
 
         links(javadocLinks)
