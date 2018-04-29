@@ -18,12 +18,7 @@ plugins {
     id "java-library"
     id "groovy"
 
-    id "com.digitalascent.gradle.errorprone" version "0.2"
-    id 'nebula.project' version '3.4.1'
-    id 'nebula.nebula-bintray' version '3.5.2'
-    id "nebula.resolution-rules" version "5.2.0"
-
-    id 'pl.allegro.tech.build.axion-release' version '1.9.0'
+    id "com.digitalascent.gradle.project" version "0.2.1"
 }
 
 scmVersion {
@@ -41,10 +36,6 @@ version = scmVersion.version
 
 repositories {
     jcenter()
-}
-
-errorprone {
-
 }
 
 tasks.withType(JavaCompile) {
@@ -146,9 +137,9 @@ task "publishArtifacts"  {
     project.artifactoryPublish.enabled = false
     project.bintrayUpload.enabled = false
 
-    ext.tag = System.getenv("TRAVIS_TAG")
-    ext.branch = System.getenv("TRAVIS_BRANCH")
-    ext.pullRequest = System.getenv("TRAVIS_PULL_REQUEST")
+    def tag = System.getenv("TRAVIS_TAG")
+    def branch = System.getenv("TRAVIS_BRANCH")
+    def pullRequest = System.getenv("TRAVIS_PULL_REQUEST")
 
     if ( tag || (branch == 'master' && pullRequest == 'false')) {
         if( tag && !isSnapshot ) {
