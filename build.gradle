@@ -21,6 +21,7 @@ plugins {
     id "com.digitalascent.gradle.project" version "0.4.2"
 }
 
+description = "Google Flogger back-end for Logback"
 group = "com.digitalascent"
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
