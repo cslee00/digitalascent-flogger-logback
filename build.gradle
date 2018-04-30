@@ -18,15 +18,7 @@ plugins {
     id "java-library"
     id "groovy"
 
-    id "com.digitalascent.gradle.project" version "0.2.1"
-}
-
-scmVersion {
-    localOnly = true
-    tag {
-        prefix = 'release'
-        versionSeparator = '/'
-    }
+    id "com.digitalascent.gradle.project" version "0.4.2"
 }
 
 group = "com.digitalascent"
@@ -38,29 +30,9 @@ repositories {
     jcenter()
 }
 
-tasks.withType(JavaCompile) {
-
-    configure(options) {
-        // http://docs.oracle.com/javase/8/docs/technotes/tools/windows/javac.html#BHCJCABJ
-        ext.lintOpts = ["serial", "varargs", "cast", "classfile", "dep-ann", "divzero", "empty", "finally",
-                        "overrides", "path", "processing", "static", "try", "fallthrough", "rawtypes", "deprecation",
-                        "unchecked", "-options"].collect { "-Xlint:${it}" }
-
-
-        // http://docs.oracle.com/javase/8/docs/technotes/tools/windows/javac.html
-        // -Werror - terminates compilation when warnings occur
-        ext.generalArgs = []
-//            ext.generalArgs = ["-Werror"]
-
-        compilerArgs += lintOpts
-        compilerArgs += generalArgs
-        encoding = 'UTF-8'
-    }
-}
 ext.versions = [
         "flogger" : "0.1"
 ]
-
 
 dependencies {
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
@@ -74,27 +46,6 @@ dependencies {
     testRuntimeOnly('com.athaydes:spock-reports:1.3.1') {
         transitive = false // this avoids affecting version of Groovy/Spock
     }
-}
-
-javadoc {
-    description = "Generates project-level javadoc for use in -javadoc jar"
-    configure(options) {
-        memberLevel = JavadocMemberLevel.PROTECTED
-        author = true
-        header = project.name
-
-        ext.javadocLinks = [
-                "http://docs.oracle.com/javase/8/docs/api/"
-        ] as String[]
-
-        links(javadocLinks)
-        addStringOption('Xdoclint:none', '-quiet')
-    }
-
-    // Suppress warnings due to cross-module @see and @link references.
-    // Note that global 'api' task does display all warnings.
-    logging.captureStandardError LogLevel.INFO
-    logging.captureStandardOutput LogLevel.INFO  // suppress "## warnings" message
 }
 
 contacts {
@@ -111,41 +62,7 @@ wrapper {
 }
 
 bintray {
-    dryRun = false
     pkg {
-        repo = 'com.digitalascent'
-        name = project.name
-        userOrg = ''
-        websiteUrl = 'https://github.com/cslee00/${project.name}'
-        issueTrackerUrl = 'https://github.com/cslee00/${project.name}/issues'
-        vcsUrl = 'https://github.com/cslee00/${project.name}.git'
-        labels = []
-        version {
-            name = project.version
-            vcsTag = project.version
-            attributes = [:]
-        }
-    }
-}
-
-task "publishArtifacts"  {
-    dependsOn = [release,bintrayUpload,artifactoryPublish]
-    group = "publishing"
-    def isSnapshot = version.endsWith("SNAPSHOT")
-
-    project.bintrayUpload.enabled = false
-    project.artifactoryPublish.enabled = false
-    project.bintrayUpload.enabled = false
-
-    def tag = System.getenv("TRAVIS_TAG")
-    def branch = System.getenv("TRAVIS_BRANCH")
-    def pullRequest = System.getenv("TRAVIS_PULL_REQUEST")
-
-    if ( tag || (branch == 'master' && pullRequest == 'false')) {
-        if( tag && !isSnapshot ) {
-            bintrayUpload.enabled = true
-        } else {
-            artifactoryPublish.enabled = true
-        }
+        vcsUrl = "https://github.com/cslee00/${project.name}.git"
     }
 }
